@@ -21,7 +21,7 @@ function Navbar() {
   )
 
   const handleLogout = () => {
-    console.log("base url-------> ",BaseUrl);
+    console.log("base url-------> ",`${BaseUrl}user/logout`);
     
     axios.get(`${BaseUrl}user/logout`, { withCredentials: true })
       .then(response => {

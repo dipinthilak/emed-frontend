@@ -36,10 +36,12 @@ function LoginPage() {
         console.log("input datas", formData);
         axios.post(`http://localhost:3000/api/doctor/login`, { formData }, { withCredentials: true })
             .then(response => {
-                const { doctorData } = response.data;
+                console.log("response from server---->",response);
+                
+                const doctorData  = response.data.doctor;
                 console.log("this is response from server----->>", doctorData);
-                if (response.status) {
-                    dispatch(addDoctor(response.data.doctorData));
+                if (response.data.status) {
+                    dispatch(addDoctor(doctorData));
                     navigate("/doctor-profile");
                 }
             })

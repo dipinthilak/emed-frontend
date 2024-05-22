@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-// Helper function to calculate the maximum date
 const calculateMaxDate = () => {
   const today = new Date();
   today.setFullYear(today.getFullYear() - 18);
@@ -70,7 +69,6 @@ function SignupPage() {
       })
       .catch(error => {
         console.error('Signup failed:', error);
-        // Handle signup failure, such as displaying an error message to the user
       })
       .finally(() => {
         setSubmitting(false);
@@ -183,7 +181,7 @@ function SignupPage() {
                           name="dob"
                           placeholder="Enter Your Date of Birth"
                           className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
-                          max={maxDate}  // Set the maximum date
+                          max={maxDate} 
                         />
                         <ErrorMessage name="dob" component="div" className="text-red-600" />
                       </div>

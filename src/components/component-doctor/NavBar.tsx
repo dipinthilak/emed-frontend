@@ -7,7 +7,6 @@ import axios from "axios";
 function Navbar() {
   const BaseUrl: string = `http://localhost:3000/api/`;
   const path = useLocation();
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const doctorData = useSelector(
@@ -15,14 +14,15 @@ function Navbar() {
   );
 
   useEffect(() => {
-    console.log(doctorData);
+    console.log("doc---data--->",doctorData);
     console.log(path.pathname);
   }, []);
 
   const handleLogout = () => {
     console.log("base url-------> ", BaseUrl);
 
-    axios.get(`${BaseUrl}doctor/logout`, { withCredentials: true }).then((response) => {
+    axios.get(`${BaseUrl}doctor/logout`, { withCredentials: true })
+    .then((response) => {
       console.log(response);
       dispatch(clearDoctor());
       navigate("/doctor/login");
@@ -88,7 +88,7 @@ function Navbar() {
             </li>
           </ul>
         </div>
-        {!doctorData.doctorId ? (
+        {!doctorData._id ? (
           <div className="navbar-end pr-10 ">
             {path.pathname !== "/doctor/login" && (
               <a

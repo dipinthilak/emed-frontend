@@ -1,86 +1,107 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Footer from '../../components/components-user/Footer';
 import Navbar from '../../components/component-doctor/NavBar';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+
+// Helper function to calculate the maximum date
+const calculateMaxDate = () => {
+  const today = new Date();
+  today.setFullYear(today.getFullYear() - 23);
+  const year = today.getFullYear();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const day = today.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 function SignupPage() {
   const navigate = useNavigate();
+  const maxDate = calculateMaxDate();
 
-  const doctorData = useSelector(
-    (state: any) => state.persisted.doctor.doctorData
-  );
-  useEffect(()=>{
-    if(doctorData.doctorId){
-      navigate('/doctor-profile')
+  const doctorData = useSelector((state: any) => state.persisted.doctor.doctorData);
+
+  useEffect(() => {
+    if (doctorData.doctorId) {
+      navigate('/doctor-profile');
     }
-  })
+  }, [doctorData, navigate]);
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    registerNo:'',
-    department:'',
-    address: '',
-    pincode:'',
-    phoneNo: '',
-    gender:'',
-    dob:'',
-    password: '',
-    confirmPassword: ''
-  });
   const [showModal, setShowModal] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [otpValue, setOtpValue] = useState('');
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+  const initialValues = {
+    fullName: '',
+    email: '',
+    registerNo: '',
+    department: '',
+    address: '',
+    pincode: '',
+    phoneNo: '',
+    gender: '',
+    dob: '',
+    password: '',
+    confirmPassword: ''
   };
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    console.log();
+  const validationSchema = Yup.object({
+    fullName: Yup.string().required('Full Name is required'),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    registerNo: Yup.string().required('Register No is required'),
+    department: Yup.string().required('Department is required'),
+    address: Yup.string().required('Address is required'),
+    pincode: Yup.string().required('Pincode is required'),
+    phoneNo: Yup.string().min(10, 'Enter valid Phone number').required('Phone No is required'),
+    gender: Yup.string().required('Gender is required'),
+    dob: Yup.date().max(new Date(maxDate), 'You must be at least 23 years old').required('Date of Birth is required').nullable(),
+    password: Yup.string().min(4, 'Password must be at least 4 characters').required('Password is required'),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password'), undefined], 'Passwords must match')
+      .required('Confirm Password is required')
+  });
 
-    axios.post(`http://localhost:3000/api/doctor/signup`, { formData }, { withCredentials: true })
+  const handleSubmit = (values: any, { setSubmitting }: any) => {
+    axios.post(`http://localhost:3000/api/doctor/signup`, { formData: values }, { withCredentials: true })
       .then(response => {
-        console.log(response.data);
-        console.log(response.data.message);
         if (response.data.status) {
           setShowModal(true);
         }
       })
       .catch(error => {
         console.error('Signup failed:', error);
+      })
+      .finally(() => {
+        setSubmitting(false);
       });
   };
 
   const handleOTPSubmit = () => {
     axios.post(`http://localhost:3000/api/doctor/verify-otp`, { otpValue: parseInt(otpValue) }, { withCredentials: true })
       .then(response => {
-        console.log(response.data.message);
-        if (response.data.status) {
+        console.log(response);
+        
+        if (response.data.verification) {
           setSignUpSuccess(true);
-        }
-        else if (!response.data.status) {
-          alert("enter otp again-----")
+        } else {
+          alert("Enter OTP again");
           setShowModal(true);
         }
       })
-    console.log("Submitting OTP:", otpValue);
+      .catch(error => {
+        console.error('OTP verification failed:', error);
+      });
     setShowModal(false);
   };
 
   useEffect(() => {
-    // Add event listener to prevent modal close when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        setShowModal(true);
+      const target = event.target as Node | null;
+      if (modalRef.current && target && !modalRef.current.contains(target)) {
+        setShowModal(false);
       }
     };
 
@@ -89,160 +110,165 @@ function SignupPage() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  const maxDate = new Date();
-  maxDate.setFullYear(maxDate.getFullYear() - 23);
-
-
 
   return (
     <>
       <Navbar />
-      <div className="flex justify-center items-center w-full  mt-8 bg-white px-5 py-5">
+      <div className="flex justify-center items-center w-full mt-8 bg-white px-5 py-5">
         <div className="xl:max-w-7xl pb-60 bg-white drop-shadow-xl border border-black/20 w-full rounded-md flex justify-between items-stretch px-5 xl:px-5 py-5">
           <div className="mx-auto w-full lg:w-1/2 md:p-10 py-5 md:py-0">
             <h1 className="text-center text-2xl sm:text-3xl font-semibold text-secondary">
               Create Account
             </h1>
-            <form onSubmit={handleSubmit}>
-              <div className="w-full mt-5 sm:mt-8">
-                <div className="mx-auto w-full sm:max-w-md md:max-w-lg flex flex-col gap-5">
-                  <input
-                    type="text"
-                    name="fullName"
-                    required
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Enter Your Full Name"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter Your Email"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  />
-                                    <input
-                    type="text"
-                    name="registerNo"
-                    required
-                    value={formData.registerNo}
-                    onChange={handleChange}
-                    placeholder="Enter Your registerNo"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  />
-                                    <input
-                    type="text"
-                    name="department"
-                    required
-                    value={formData.department}
-                    onChange={handleChange}
-                    placeholder="Enter Your department"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  />
-                  <input
-                    type="textarea"
-                    name="address"
-                    required
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="Enter Your Address"
-                    className="input input-bordered input-secondary w-full h-20 text-black placeholder:text-black/70"
-                  />
-                                    <input
-                    type="textarea"
-                    required
-                    name="pincode"
-                    value={formData.pincode}
-                    onChange={handleChange}
-                    placeholder="Enter Your pincode"
-                    className="input input-bordered input-secondary w-full h-20 text-black placeholder:text-black/70"
-                  />
-                  <input
-                    type="text"
-                    name="phoneNo"
-                    required
-                    value={formData.phoneNo}
-                    onChange={handleChange}
-                    placeholder="Enter Your Phone No"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  />
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    required
-                    onChange={handleChange}
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  >
-                    <option value="" >Select your Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                  <input
-                    type="date"
-                    name="dob"
-                    required
-                    value={formData.dob}
-                    onChange={handleChange}
-                    placeholder="Enter Your Date of Birth"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                    max={maxDate.toISOString().split('T')[0]} 
-
-                  />
-                  <input
-                    type="password"
-                    name="password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter Your Password"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  />
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Re-enter Your Password"
-                    className="input input-bordered input-secondary w-full text-black placeholder:text-black/70"
-                  />
-                  <div className="flex flex-col md:flex-row gap-2 md:gap-4 justify-center items-center m-12">
-                    <button type="submit" className="btn btn-active btn-secondary btn-block max-w-[200px] text-white text-xl">
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {({ isSubmitting }) => (
+                <Form>
+                  <div className="w-full mt-5 sm:mt-8">
+                    <div className="mx-auto w-full sm:max-w-md md:max-w-lg flex flex-col gap-5">
+                      <div>
+                        <Field
+                          type="text"
+                          name="fullName"
+                          placeholder="Enter Your Full Name"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="fullName" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="email"
+                          placeholder="Enter Your Email"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="email" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="registerNo"
+                          placeholder="Enter Your Register No"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="registerNo" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="department"
+                          placeholder="Enter Your Department"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="department" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          as="textarea"
+                          name="address"
+                          placeholder="Enter Your Address"
+                          className="input input-bordered input-primary w-full h-20 text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="address" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="pincode"
+                          placeholder="Enter Your Pincode"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="pincode" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="phoneNo"
+                          placeholder="Enter Your Phone No"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="phoneNo" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          as="select"
+                          name="gender"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        >
+                          <option value="">Select your Gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </Field>
+                        <ErrorMessage name="gender" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="date"
+                          name="dob"
+                          placeholder="Enter Your Date of Birth"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                          max={maxDate}  
+                        />
+                        <ErrorMessage name="dob" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="password"
+                          name="password"
+                          placeholder="Enter Your Password"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="password" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="password"
+                          name="confirmPassword"
+                          placeholder="Re-enter Your Password"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="confirmPassword" component="div" className="text-red-600" />
+                      </div>
+                      <button type="submit" className="btn btn-secondary w-full" disabled={isSubmitting}>
                       Sign Up
-                    </button>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </form>
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       </div>
-
+      <Footer />
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-md" ref={modalRef}>
-            <h2 className="text-xl font-semibold mb-4">Enter OTP</h2>
-            <input type="number" className="input input-bordered mb-4" placeholder="Enter OTP" onChange={(e) => setOtpValue(e.target.value)} />
-            <button className="btn btn-primary" onClick={() => handleOTPSubmit()}>Submit OTP</button>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div ref={modalRef} className="bg-white p-8 rounded shadow-md">
+            <h2 className="text-xl font-semibold mb-4">OTP Verification</h2>
+            <input
+              type="text"
+              value={otpValue}
+              onChange={(e) => setOtpValue(e.target.value)}
+              placeholder="Enter OTP"
+              className="input input-bordered input-primary w-full mb-4"
+            />
+            <button onClick={handleOTPSubmit} className="btn btn-primary w-full">Submit</button>
           </div>
         </div>
       )}
       {signUpSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-md" ref={modalRef}>
-            <h2 className="text-xl font-semibold mb-4">Enter OTP</h2>
-            <p>Signup Success </p>
-            <button className="btn btn-primary" onClick={() => navigate("/doctor/login")}>LOGIN Here</button>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded shadow-md text-center">
+            <h2 className="text-xl font-semibold mb-4">Sign Up Successful</h2>
+            <p>Your account has been created successfully.</p>
+            <button onClick={() => navigate('/doctor/login')} className="btn btn-primary mt-4">Go to Sign In</button>
           </div>
         </div>
       )}
-
-
-      <Footer />
     </>
   );
 }

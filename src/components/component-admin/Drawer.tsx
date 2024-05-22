@@ -1,19 +1,33 @@
 import axios from "axios"
+import { useDispatch } from "react-redux";
 
 import { useNavigate } from "react-router-dom";
+import { clearAdmin } from "../../rtk/slices/adminSlice";
 function Drawer() {
     const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+
+
     const handleLogout = () => {
+        console.log("admin logout started--->>");
+        
         axios.get(`http://localhost:3000/api/admin/logout`, { withCredentials: true })
             .then((res) => {
-                if (res.data?.status) {                    
-                    localStorage.removeItem("adminAccessToken");
+                console.log(res,"<-----response");
+                
+                if (res.data.status) {   
+                   const result= dispatch(clearAdmin()); 
+                   console.log("clear admin result---->",result);
+                    
+
                     navigate('/admin/login');
                 }
             }).catch((error) => {
                 console.log(error);
             })
     }
+
     return (
         <>
             <div className="flex flex-row w-[20vw] h-[88vh] bg-teal-100">

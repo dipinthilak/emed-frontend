@@ -11,7 +11,7 @@ function Doctorprofile() {
     useEffect(() => {
         console.log("123456",doctorData);
         
-        if (!doctorData.doctorId) {
+        if (!doctorData._id) {
             navigate('/doctor/login');
         }
 

@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { clearUser } from "../../rtk/slices/userSlice";
 import axios from "axios";
+const BaseUrl:string=import.meta.env.VITE_BaseUrl;
 function Navbar() {
-  // const BaseUrl=import.meta.env.VITE_BaseUrl;
-  const BaseUrl:string = `http://localhost:3000/api/`;
+  // const BaseUrl:string = `http://localhost:3000/api/`;
   const path = useLocation();
 
   const navigate = useNavigate();
@@ -13,17 +13,8 @@ function Navbar() {
   const userData = useSelector(
     (state: any) => state.persisted.user.userData
   );
-  useEffect(() => {
-    console.log(BaseUrl);
-    console.log(userData);
-    console.log(path.pathname);
-  }, []
-  )
-
   const handleLogout = () => {
-    console.log("base url-------> ",`${BaseUrl}user/logout`);
-    
-    axios.get(`${BaseUrl}user/logout`, { withCredentials: true })
+    axios.get(`${BaseUrl}/user/logout`, { withCredentials: true })
       .then(response => {
         console.log(response);
         dispatch(clearUser());

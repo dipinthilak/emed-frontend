@@ -13,6 +13,10 @@ import Notfound from "./pages/pages-user/Notfound"
 import Home from "./pages/pages-admin/Home"
 import Userprofile from "./pages/pages-user/Userprofile"
 import Doctorprofile from "./pages/pages-doctor/Doctorprofile"
+import ForgotPasswordPage from "./pages/pages-doctor/ForgotPassword"
+import DoctorData from "./pages/pages-doctor/DoctorData"
+
+
 
 function App() {
 
@@ -28,13 +32,16 @@ function App() {
 
 
       <Route path='/user-profile' element={<Userprofile />}></Route>
-      <Route path='/doctor-profile' element={<Doctorprofile />}></Route>
+      <Route path='/doctor/doctor-profile' element={<Doctorprofile />}></Route>
+      <Route path='/doctor/account-details' element={<DoctorData />}></Route>
 
 
       <Route path='/doctor/login' element={<DoctorLoginPage />}></Route>
       <Route path='/doctor/signup' element={<DoctorSignupPage />}></Route>
+      <Route path='/doctor/forgot-password' element={<ForgotPasswordPage />}></Route>
+      <Route path='/user/forgot-password' element={<ForgotPasswordPage />}></Route>
 
-      <Route path='/admin/' element={<Home />}></Route>
+      <Route path='/admin/*' element={<Home />}></Route>
       <Route path='/admin/login' element={<AdminLoginPage />}></Route>
       <Route path='*' element={<Notfound />}></Route>
 

@@ -35,14 +35,14 @@ function LoginPage() {
         event.preventDefault();
         console.log("credentials", `Admin Name: ${adminName}, Password: ${password}`);
         axios.post(`http://localhost:3000/api/admin/login`, { email: adminName, password: password }, { withCredentials: true })
-            .then((res) => {
-                if (res.data.status) {
-                    console.log(res)
-                    const adminData=res.data.admin;
+            .then((response) => {
+                if (response.data.status) {
+                    console.log(response)
+                    const adminData=response.data.admin;
                         dispatch(addAdmin(adminData));
                         navigate("/admin");
                 } else {
-                    console.log("response from server",res.data?.message);
+                    console.log("response from server",response.data?.message);
                 }
 
             }).catch((error) => {

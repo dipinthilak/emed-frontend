@@ -15,6 +15,7 @@ function Navbar() {
 
   useEffect(() => {
     console.log("doc---data--->",doctorData);
+    console.log("nmae of doctor----->",doctorData?.fullName);
     console.log(path.pathname);
   }, []);
 
@@ -113,7 +114,7 @@ function Navbar() {
               className="btn btn-secondary text-white text-2xl"
               onClick={() => navigate("/doctor-profile")}
             >
-              {doctorData.name}
+              {doctorData?.fullName}
             </a>
             <a
               className="btn mx-10 btn-secondary text-white text-2xl"

@@ -5,6 +5,9 @@ import Navbar from '../../components/components-user/Navbar';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { addUser } from '../../rtk/slices/userSlice';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '../../../firebase/firebaseConfig';
+import toast from 'react-hot-toast';
 
 function LoginPage() {
   const [toast, setToast] = useState('');
@@ -35,24 +38,55 @@ function LoginPage() {
     e.preventDefault();
     console.log("input datas", formData);
     axios.post(`http://localhost:3000/api/user/login`, { formData }, { withCredentials: true })
-      .then(res => {
-        if (res.status) {
-          console.log("response from server ---->>>",res);
-          dispatch(addUser(res.data.user));
+      .then(response => {
+        if (response.status) {
+          console.log("response from server ---->>>", response);
+          dispatch(addUser(response.data.user));
           navigate("/user-profile");
         }
-        if (!res.status) {
-          console.log("res data -------->>>",res.data?.message)
-          setToast(res.data.message);
+        if (!response.status) {
+          console.log("res data -------->>>", response.data?.message)
+          setToast(response.data.message);
         }
       })
-      .catch((er)=>{
-        if(er.response){
+      .catch((er) => {
+        if (er.response) {
           // if(er.response.data.message){
           setToast(er.response)
         }
-        
+
       })
+  };
+
+  const handleGoogle = async () => {
+    try {
+      const data = await signInWithPopup(auth, provider);
+      console.log("google data---->", data);
+
+      const userData = {
+        email: data.user.email,
+        fullName: data.user.displayName,
+        googleId: data.user.uid,
+        phoneNo: data.user.phoneNumber ?? null,
+        isGoogle: true,
+      };
+
+      axios
+        .post(`http://localhost:3000/api/user/google-login`, userData, { withCredentials: true })
+        .then((response) => {
+          console.log("response from server---->", response.data.doctor);
+          if (response.data.status) {
+            const userData = response.data.user;
+            dispatch(addUser(userData));
+            navigate("/doctor-profile");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -122,9 +156,9 @@ function LoginPage() {
                   </button>
                 </div>
                 <div className="text-sm text-danger">
-                  <a className="font-medium">
-                    Forgot your password?
-                  </a>
+                <a className="font-medium" onClick={() => { navigate('/user/forgot-password') }}>
+                                        Forgot your password?
+                                    </a>
                 </div>
               </div>
 
@@ -143,6 +177,7 @@ function LoginPage() {
                 type="button"
                 className="btn btn-warning w-full flex justify-center py-2 px-4 border border-transparent 
                   rounded-md shadow-sm text-sm font-medium text-black"
+                onClick={handleGoogle}
               >
                 Log in with Google
               </button>

@@ -6,6 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '../../../firebase/firebaseConfig';
+import toast from 'react-hot-toast';
 
 const calculateMaxDate = () => {
   const today = new Date();
@@ -92,6 +95,40 @@ function SignupPage() {
         console.error('OTP verification failed:', error);
       });
     setShowModal(false);
+  };
+
+  const handleGoogle = async () => {
+    try {
+      const data = await signInWithPopup(auth, provider);
+      console.log("google data---->", data);
+
+      const userData = {
+        email: data.user.email,
+        fullName: data.user.displayName,
+        googleId: data.user.uid,
+        phoneNo: data.user.phoneNumber ?? null,
+        isGoogle: true,
+      };
+
+      axios
+        .post(`http://localhost:3000/api/user/google-signup`, userData, { withCredentials: true })
+        .then((response) => {
+          console.log("res");
+          console.log(response);
+          if (response.data.status) {
+            setSignUpSuccess(true);
+          } else {
+            toast.error("signup with google account is not succesfull!");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Sign in with Google failed!");
+        });
+    } catch (error) {
+      console.log(error);
+      toast.error("Sign in with Google failed!");
+    }
   };
 
   useEffect(() => {
@@ -213,6 +250,15 @@ function SignupPage() {
                 </Form>
               )}
             </Formik>
+            <div className="mt-8 flex items-center space-x-2 justify-center px-3">
+              <button
+                className="btn btn-warning w-full flex justify-center py-2 px-4  border border-transparent 
+                                              rounded-md shadow-sm text-xl font-medium text-black"
+                onClick={handleGoogle}
+              >
+                SIGNUP WITH GOOGLE
+              </button>
+            </div>
           </div>
         </div>
       </div>

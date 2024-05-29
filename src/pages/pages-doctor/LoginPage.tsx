@@ -5,21 +5,25 @@ import Navbar from '../../components/component-doctor/NavBar';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDoctor } from '../../rtk/slices/doctorSlice';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '../../../firebase/firebaseConfig';
+import toast, { Toaster } from 'react-hot-toast';
 
 function LoginPage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
     const doctorData = useSelector(
         (state: any) => state.persisted.doctor.doctorData
-      );
-      useEffect(()=>{
-        if(doctorData.doctorId){
-          navigate('/doctor-profile')
+    );
+    useEffect(() => {
+        if (doctorData._id) {
+            navigate('/doctor/doctor-profile');
         }
-      })
+    });
 
     const [formData, setFormData] = useState({
-        email: '',
+        email: 'dipint2023@gmail.com',
         password: ''
     });
 
@@ -31,18 +35,57 @@ function LoginPage() {
         }));
     };
 
+    const handleGoogle = async () => {
+        try {
+            const data = await signInWithPopup(auth, provider);
+            console.log("google data---->", data);
+
+            const userData = {
+                email: data.user.email,
+                fullName: data.user.displayName,
+                googleId: data.user.uid,
+                phoneNo: data.user.phoneNumber ?? null,
+                isGoogle: true,
+            };
+
+            axios
+                .post(`http://localhost:3000/api/doctor/google-login`, userData, { withCredentials: true })
+                .then((response) => {
+                    console.log("response from server---->", response.data.doctor);
+                    if (response.data.status) {
+                        const doctorData = response.data.doctor;
+                        dispatch(addDoctor(doctorData));
+                        navigate("/doctor-profile");
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    toast.error("Sign in with Google failed!");
+                });
+        } catch (error) {
+            console.log(error);
+            toast.error("Sign in with Google failed!");
+        }
+    };
+
+
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("input datas", formData);
         axios.post(`http://localhost:3000/api/doctor/login`, { formData }, { withCredentials: true })
             .then(response => {
-                console.log("response from server---->",response);
-                
-                const doctorData  = response.data.doctor;
+
+                console.log("response from server--xxzxzzxxxzxzx-->", response.data);
+
+                const doctorData = response.data.doctor;
                 console.log("this is response from server----->>", doctorData);
                 if (response.data.status) {
                     dispatch(addDoctor(doctorData));
                     navigate("/doctor-profile");
+                }
+                else {
+                    toast.error(response.data.message);
                 }
             })
     };
@@ -50,6 +93,7 @@ function LoginPage() {
     return (
         <>
             <Navbar />
+            <Toaster position="top-right" reverseOrder={true}></Toaster>
             <div className="h-fit bg-blue-50 flex flex-col justify-center pt-32 pb-52 sm:px-4 lg:px-2">
                 <div className="sm:mx-auto sm:w-full sm:max-w-md">
                     <h2 className="mt-0 text-center text-3xl font-extrabold text-gray-900">
@@ -107,7 +151,7 @@ function LoginPage() {
                                     </button>
                                 </div>
                                 <div className="text-sm text-danger">
-                                    <a className="font-medium">
+                                    <a className="font-medium" onClick={() => { navigate('/doctor/forgot-password') }}>
                                         Forgot your password?
                                     </a>
                                 </div>
@@ -119,7 +163,7 @@ function LoginPage() {
                                     className="btn btn-secondary w-full flex justify-center py-2 px-4 border border-transparent 
                     rounded-md shadow-sm text-sm font-medium text-white"
                                 >
-                                    Log in
+                                    LOGIN
                                 </button>
                             </div>
                         </form>
@@ -128,8 +172,9 @@ function LoginPage() {
                                 type="button"
                                 className="btn btn-warning w-full flex justify-center py-2 px-4 border border-transparent 
                   rounded-md shadow-sm text-sm font-medium text-black"
+                                onClick={handleGoogle}
                             >
-                                Log in with Google
+                                LOGIN WITH GOOGLE
                             </button>
                         </div>
                     </div>

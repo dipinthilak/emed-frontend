@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../../components/components-user/Footer';
-import Navbar from '../../components/component-doctor/NavBar';
+
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
+import Navbar from '../../components/components-user/Navbar';
 
 const ForgotUserPassword = () => {
     
-    const doctorData = useSelector(
+    const userData = useSelector(
         (state: any) => state.persisted.user.userData
       );
       useEffect(() => {
-        if (doctorData._id) {
+        if (userData._id) {
           navigate('/user/user-profile');
         }
       });
@@ -167,7 +168,7 @@ const ForgotUserPassword = () => {
                                     <div>
                                         <button
                                             type="submit"
-                                            className="btn btn-secondary w-full flex justify-center py-2 px-4 border text-xl border-transparent 
+                                            className="btn btn-primary w-full flex justify-center py-2 px-4 border text-xl border-transparent 
                                                 rounded-md shadow-sm font-medium text-white"
                                         >
                                             {showForgot ? "SEND OTP" : "UPDATE PASSWORD"}
@@ -184,7 +185,7 @@ const ForgotUserPassword = () => {
           <div className="bg-white p-8 rounded-2xl shadow-md text-center">
             <h2 className="text-xl font-bold mb-4 text-orange-600 ">Password Upadation Successful</h2>
             <p className='text-gray-500'>Your account password has been updated successfully.</p>
-            <button onClick={() => navigate('/doctor/login')} className="btn btn-secondary mt-4 text-xl text-black">Go to Sign In</button>
+            <button onClick={() => navigate('/login')} className="btn btn-secondary mt-4 text-xl text-black">Go to Sign In</button>
           </div>
         </div>
       )}

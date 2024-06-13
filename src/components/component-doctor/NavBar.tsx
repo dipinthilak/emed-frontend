@@ -112,7 +112,7 @@ function Navbar() {
           <div className="navbar-end pr-10 ">
             <a
               className="btn btn-secondary text-white text-2xl"
-              onClick={() => navigate("/doctor-profile")}
+              onClick={() => navigate("/doctor/doctor-profile")}
             >
               {doctorData?.fullName}
             </a>

@@ -1,4 +1,4 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import userSlice from "../slices/userSlice";
 import doctorSlice from "../slices/doctorSlice";
 import adminSlice from "../slices/adminSlice";

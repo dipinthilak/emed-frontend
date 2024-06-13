@@ -16,6 +16,10 @@ interface Doctor {
     isActive: boolean;
     isVerified: boolean;
 }
+interface userPaging {
+    pageNo: number;
+    totalPages: number;
+};
 
 function DoctorVerification() {
     const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -23,12 +27,18 @@ function DoctorVerification() {
     const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isVerifyModalOpen, setIsVerifyModalOpen] = useState<boolean>(false);
+    const [pageNo, setPageNo] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
 
     useEffect(() => {
-        axios.get<{ doctors: Doctor[] }>('http://localhost:3000/api/admin/doctors?verified=false', { withCredentials: true })
+        axios.get<{ doctors: Doctor[], userPaging: userPaging }>(`http://localhost:3000/api/admin/doctors?verified=false&pageNo=${pageNo}`, { withCredentials: true })
             .then((response) => {
                 if (response.status === 200) {
+                    console.log("response-dr--->", response.data);
+
                     setDoctors(response.data.doctors);
+                    setPageNo(response.data?.userPaging?.pageNo);
+                    setTotalPages(response.data?.userPaging?.totalPages);
                 }
             })
             .catch((error) => {
@@ -42,8 +52,8 @@ function DoctorVerification() {
     }
 
     const handleStatusChange = (doctorId: string) => {
-        console.log("fdhsfhjshfjdshfjfhdjfkdfs------------->",doctorId);
-        
+        console.log("fdhsfhjshfjdshfjfhdjfkdfs------------->", doctorId);
+
         axios.patch(`http://localhost:3000/api/admin/doctor-verification/${doctorId}`, { isVerified: status }, { withCredentials: true })
             .then((response) => {
                 if (response.status === 200 && response.data.status) {
@@ -51,8 +61,8 @@ function DoctorVerification() {
                     toast.success(`${response.data.doctor.fullName} verified successfully!`);
                     setIsVerifyModalOpen(false);
                     setSelectedDoctor(null);
-                }else{
-                toast.error("Failed to change doctor status.");
+                } else {
+                    toast.error("Failed to change doctor status.");
 
                 }
             })
@@ -82,7 +92,7 @@ function DoctorVerification() {
             <Toaster />
             <div className="ml-14 mt-5">
                 <h1 className="pl-10 text-3xl">Doctor List</h1>
-                <div className="overflow-x-auto mt-14">
+                <div className="overflow-x-auto mt-14 min-h-[55vh] ">
                     <table className="table table-zebra table-lg">
                         <thead>
                             <tr className="text-xl text-black">
@@ -132,6 +142,17 @@ function DoctorVerification() {
                         </tbody>
                     </table>
                 </div>
+                {totalPages > 1 && (
+          <div className="join">
+            {[...Array(totalPages)].map((_, index) => (
+              <button key={index} onClick={() => {
+                setRefresh(!refresh);
+                setPageNo(index + 1);
+              }}
+                className={pageNo == index + 1 ? "join-item btn btn-active" : "join-item btn"}> {index + 1}</button>
+            ))}
+          </div>
+        )}
             </div>
 
             {isModalOpen && selectedDoctor && (

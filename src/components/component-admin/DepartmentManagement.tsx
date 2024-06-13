@@ -8,22 +8,31 @@ interface Department {
     about: string;
     isActive: boolean;
 }
+interface userPaging{ 
+    pageNo: number;
+    totalPages: number; 
+   };
 
 function DepartmentManagement() {
     const [departments, setDepartments] = useState<Department[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [refresh, setRefresh] = useState<boolean>(false);
     const [newDepartment, setNewDepartment] = useState({
         name: '',
         about: '',
         isActive: true,
     });
+    const [pageNo, setPageNo] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
 
     useEffect(() => {
-        axios.get<{ departments: Department[] }>(`http://localhost:3000/api/admin/departments`, { withCredentials: true })
+        axios.get<{ departments: Department[],userPaging: userPaging  }>(`http://localhost:3000/api/admin/departments`, { withCredentials: true })
             .then((response) => {
                 if (response.status === 200) {
                     const departmentData = response.data.departments;
                     setDepartments(departmentData);
+                    setPageNo(response.data?.userPaging?.pageNo)
+                    setTotalPages(response.data?.userPaging?.totalPages)
                 } else {
                     toast.error(`Error while fetching department data`);
                 }
@@ -32,7 +41,7 @@ function DepartmentManagement() {
                 console.error("Error fetching departments:", error);
                 toast.error(`Error fetching department data: ${error.message}`);
             });
-    }, []);
+    }, [refresh]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -65,7 +74,8 @@ function DepartmentManagement() {
                 setShowModal(false);
                 setNewDepartment({ name: '', about: '', isActive: true });
             } else {
-                toast.error('Error adding department');
+                const message = response.data.message;
+                toast.error(`${message}`);
             }
         } catch (error) {
             console.error('Error adding department:', error);
@@ -73,8 +83,25 @@ function DepartmentManagement() {
         }
     };
 
-    function handleStatusChange(_id: string): void {
-        throw new Error("Function not implemented.");
+    function handleStatusChange(departmentId: string): void {
+        axios.patch(`http://localhost:3000/api/admin/change-department-status/${departmentId}`, null, { withCredentials: true })
+            .then((response) => {
+                if (response.status) {
+                    console.log(response, "response from server------->>>");
+
+                    setRefresh(!refresh);
+                    if (response.data.department.isActive) {
+                        toast.success(`${response.data.department.name} unblocked`);
+                    } else {
+                        toast.error(`${response.data.department.name} blocked`);
+                    }
+                }
+            })
+            .catch((error) => {
+                console.error("Error changing department status:", error);
+                toast.error("Failed to change department status.");
+            });
+
     }
 
     return (
@@ -109,14 +136,14 @@ function DepartmentManagement() {
                                         {department.isActive ? (
                                             <button
                                                 className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-300"
-                                                onClick={() => handleStatusChange(department._id)}
+                                                onClick={() => handleStatusChange(department.name)}
                                             >
                                                 Block
                                             </button>
                                         ) : (
                                             <button
                                                 className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-300"
-                                                onClick={() => handleStatusChange(department._id)}
+                                                onClick={() => handleStatusChange(department.name)}
                                             >
                                                 Unblock
                                             </button>

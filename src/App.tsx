@@ -15,6 +15,11 @@ import Userprofile from "./pages/pages-user/Userprofile"
 import Doctorprofile from "./pages/pages-doctor/Doctorprofile"
 import ForgotPasswordPage from "./pages/pages-doctor/ForgotPassword"
 import DoctorData from "./pages/pages-doctor/DoctorData"
+import UserProtectedRoute from "./router/UserProtectecRoutes"
+import DoctorProtectedRoute from "./router/DoctorProtectecRoutes"
+import AdminProtectedRoute from "./router/AdminProtectedRoute"
+import DoctorSlots from "./pages/pages-doctor/DoctorSlots"
+import ForgotUserPassword from "./pages/pages-user/ForgotUserPassword"
 
 
 
@@ -31,17 +36,27 @@ function App() {
       <Route path='/doctor/about' element={<DoctorAboutPage />}></Route>
 
 
-      <Route path='/user-profile' element={<Userprofile />}></Route>
+      <Route element={<UserProtectedRoute />}>
+      <Route path='/user-profile' element={<Userprofile />}></Route>     
+      </Route>
+      
+      <Route element={<DoctorProtectedRoute />}>
       <Route path='/doctor/doctor-profile' element={<Doctorprofile />}></Route>
       <Route path='/doctor/account-details' element={<DoctorData />}></Route>
+      <Route path='/doctor/consultation-slots' element={<DoctorSlots />}></Route>
+      </Route>
+
+      
+      <Route element={<AdminProtectedRoute />}>
+      <Route path='/admin/*' element={<Home />}></Route>     
+      </Route>
 
 
       <Route path='/doctor/login' element={<DoctorLoginPage />}></Route>
       <Route path='/doctor/signup' element={<DoctorSignupPage />}></Route>
       <Route path='/doctor/forgot-password' element={<ForgotPasswordPage />}></Route>
-      <Route path='/user/forgot-password' element={<ForgotPasswordPage />}></Route>
+      <Route path='/user/forgot-password' element={<ForgotUserPassword />}></Route>
 
-      <Route path='/admin/*' element={<Home />}></Route>
       <Route path='/admin/login' element={<AdminLoginPage />}></Route>
       <Route path='*' element={<Notfound />}></Route>
 

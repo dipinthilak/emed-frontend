@@ -24,9 +24,10 @@ function Doctorprofile() {
                 <div className="flex flex-row h-[88vh] bg-green-100">
                     <ul className="menu mt-24 mb-auto  w-[20vw] ml-0 mr-0  bg-blue-50 text-xl text-base-content">
                         <li className="bg-green-200 pt-2 pb-2 rounded-xl font-bold text-xl" onClick={() => { navigate('/doctor/doctor-profile') }}><a>DASHBOARD</a></li>
-                        <li className="bg-green-100 pt-2 pb-2 rounded-xl font-bold text-xl" onClick={() => { navigate('/doctor/account-details/') }}><a>UPDATE DETAILS</a></li>
-                        <li className="bg-green-200 pt-2 pb-2 rounded-xl font-bold text-xl"><a>WALLET</a></li>
-                        <li className=" bg-green-100 pt-2 pb-2 rounded-xl font-bold text-xl"><a>ACCOUNT SETTINGS</a></li>
+                        <li className="bg-green-100 pt-2 pb-2 rounded-xl font-bold text-xl" onClick={() => { navigate('/doctor/consultation-slots') }}><a>CONSULTATION SLOTS</a></li>
+                        <li className="bg-green-200 pt-2 pb-2 rounded-xl font-bold text-xl" onClick={() => { navigate('/doctor/account-details/') }}><a>UPDATE DETAILS</a></li>
+                        <li className="bg-green-100 pt-2 pb-2 rounded-xl font-bold text-xl"><a>WALLET</a></li>
+                        <li className="bg-green-200 pt-2 pb-2 rounded-xl font-bold text-xl"><a>ACCOUNT SETTINGS</a></li>
                     </ul>
                 </div>
 

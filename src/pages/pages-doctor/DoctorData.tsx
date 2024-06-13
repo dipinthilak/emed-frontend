@@ -1,9 +1,7 @@
 import Navbar from "../../components/component-doctor/NavBar"
 import toast, { Toaster } from "react-hot-toast"
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 
 
 function DoctorData() {
@@ -11,11 +9,6 @@ function DoctorData() {
     const doctorData = useSelector(
         (state: any) => state.persisted.doctor.doctorData
     );
-    useEffect(() => {
-        if (!doctorData._id) {
-            navigate('/doctor/login');
-        }
-    });
     function handleSubmit() {
         toast.error("NOT IMPLEMENTED!!")
     }

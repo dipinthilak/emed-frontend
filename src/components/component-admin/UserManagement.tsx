@@ -1,28 +1,36 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 interface User {
   _id: string;
   fullName: string;
-  email: string;  
+  email: string;
   address: string;
   phoneNo: string;
   gender: string;
   isActive: boolean;
-}
+};
+interface userPaging{ 
+   pageNo: number;
+   totalPages: number; 
+  };
 
 function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
+  const [pageNo, setPageNo] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    axios.get<{ users: User[] }>('http://localhost:3000/api/admin/users', { withCredentials: true })
+    axios.get<{ users: User[], userPaging: userPaging }>(`http://localhost:3000/api/admin/users/${pageNo}`, { withCredentials: true })
       .then((response) => {
         if (response.status === 200) {
           setUsers(response.data.users);
+          setPageNo(response.data?.userPaging?.pageNo)
+          setTotalPages(response.data?.userPaging?.totalPages)
         }
       })
       .catch((error) => {
@@ -30,11 +38,19 @@ function UserManagement() {
       });
   }, [refresh]);
 
+  
   const handleStatusChange = (userId: string) => {
     axios.patch(`http://localhost:3000/api/admin/change-user-status/${userId}`, null, { withCredentials: true })
       .then((response) => {
         if (response.status === 200) {
-          setRefresh(!refresh);
+          const userIndex = users.findIndex(e => e._id === response.data.user._id);
+          const usersdata = [...users];
+          if (usersdata[userIndex].isActive) {
+            usersdata[userIndex].isActive = false;
+          } else {
+            usersdata[userIndex].isActive = true;
+          }
+          setUsers(usersdata);
           if (response.data.user.isActive) {
             toast.success(`${response.data.user.fullName} unblocked`);
           } else {
@@ -60,12 +76,13 @@ function UserManagement() {
 
   return (
     <div className="flex flex-row w-[80vw] h-[88vh] bg-teal-50">
+      <Toaster />
       <div className="ml-14 mt-5">
         <h1 className="pl-10 text-3xl">User List</h1>
-        <div className="overflow-x-auto mt-14">
-          <table className="table table-zebra table-lg">
+        <div className="overflow-x-auto mt-14 min-h-[55vh]">
+          <table className="table table-zebra table-lg mt-10 mb-10 ">
             <thead>
-              <tr className="text-xl text-black">
+              <tr className="text-xl text-black uppercase">
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone No</th>
@@ -78,13 +95,13 @@ function UserManagement() {
             <tbody>
               {users.map(user => (
                 <tr key={user._id} className="hover">
-                  <th>{user.fullName}</th>
+                  <th className="uppercase">{user.fullName}</th>
                   <td>{user.email}</td>
                   <td>{user.phoneNo}</td>
                   <td>0</td>
                   <td>
-                    {user.isActive 
-                      ? (<p className="font-bold text-xs text-blue-500">ACTIVE</p>) 
+                    {user.isActive
+                      ? (<p className="font-bold text-xs text-blue-500">ACTIVE</p>)
                       : (<p className="font-bold text-xs text-red-400">BLOCKED</p>)
                     }
                   </td>
@@ -113,6 +130,17 @@ function UserManagement() {
             </tbody>
           </table>
         </div>
+        {totalPages > 1 && (
+          <div className="join">
+            {[...Array(totalPages)].map((_, index) => (
+              <button key={index} onClick={() => {
+                setRefresh(!refresh);
+                setPageNo(index + 1);
+              }}
+                className={pageNo == index + 1 ? "join-item btn btn-active" : "join-item btn"}> {index + 1}</button>
+            ))}
+          </div>
+        )}
       </div>
 
       {isModalOpen && selectedUser && (

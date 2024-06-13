@@ -7,15 +7,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addUser } from '../../rtk/slices/userSlice';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../../../firebase/firebaseConfig';
-import toast from 'react-hot-toast';
 
 function LoginPage() {
   const [toast, setToast] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   const userData = useSelector(
     (state: any) => state.persisted.user.userData
   );
+
   useEffect(() => {
     if (userData._id) {
       navigate('/user-profile')

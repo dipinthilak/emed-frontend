@@ -15,18 +15,28 @@ interface Doctor {
   dob: Date;
   isActive: boolean;
 }
+interface userPaging{ 
+  pageNo: number;
+  totalPages: number; 
+ };
 
 function DoctorManagement() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [pageNo, setPageNo] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
-    axios.get<{ doctors: Doctor[] }>('http://localhost:3000/api/admin/doctors?verified=true', { withCredentials: true })
+    axios.get<{ doctors: Doctor[] ,userPaging: userPaging }>(`http://localhost:3000/api/admin/doctors?verified=true&pageNo=${pageNo}`, { withCredentials: true })
       .then((response) => {
         if (response.status === 200) {
+          console.log("response-dr--->",response.data);
+          
           setDoctors(response.data.doctors);
+          setPageNo(response.data?.userPaging?.pageNo);
+          setTotalPages(response.data?.userPaging?.totalPages);
         }
       })
       .catch((error) => {
@@ -38,9 +48,23 @@ function DoctorManagement() {
     axios.patch(`http://localhost:3000/api/admin/change-doctor-status/${doctorId}`, null, { withCredentials: true })
       .then((response) => {
         if (response.status) {
+
+          const doctorIndex = doctors.findIndex(e => e._id === response.data.doctor._id);
+          const doctorsdata = [...doctors];
+          if (doctorsdata[doctorIndex].isActive) {
+            doctorsdata[doctorIndex].isActive = false;
+          } else {
+            doctorsdata[doctorIndex].isActive = true;
+          }
+          setDoctors(doctorsdata);
+
+
+
+
+
           console.log(response,"response from server------->>>");
           
-          setRefresh(!refresh);
+          // setRefresh(!refresh);
           if (response.data.doctor.isActive) {
             toast.success(`${response.data.doctor.fullName} unblocked`);
           } else {
@@ -69,7 +93,7 @@ function DoctorManagement() {
       <Toaster />
       <div className="ml-14 mt-5">
         <h1 className="pl-10 text-3xl">Doctor List</h1>
-        <div className="overflow-x-auto mt-14">
+        <div className="overflow-x-auto mt-14 min-h-[55vh]">
           <table className="table table-zebra table-lg">
             <thead>
               <tr className="text-xl text-black">
@@ -126,6 +150,17 @@ function DoctorManagement() {
             </tbody>
           </table>
         </div>
+        {totalPages > 1 && (
+          <div className="join">
+            {[...Array(totalPages)].map((_, index) => (
+              <button key={index} onClick={() => {
+                setRefresh(!refresh);
+                setPageNo(index + 1);
+              }}
+                className={pageNo == index + 1 ? "join-item btn btn-active" : "join-item btn"}> {index + 1}</button>
+            ))}
+          </div>
+        )}
       </div>
 
       {isModalOpen && selectedDoctor && (

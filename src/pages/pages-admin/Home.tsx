@@ -1,6 +1,4 @@
-import { Route, Routes, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import UserManagement from '../../components/component-admin/UserManagement';
 import Drawer from '../../components/component-admin/Drawer';
 import Navbar from '../../components/component-admin/Navbar';
@@ -11,14 +9,6 @@ import { Toaster } from 'react-hot-toast';
 import DoctorVerification from '../../components/component-admin/DoctorVerification';
 
 function Home() {
-    const navigate = useNavigate();
-    const adminData = useSelector((state: any) => state.persisted.admin.adminData);
-
-    useEffect(() => {
-        if (!adminData._id) {
-            navigate('/admin/login');
-        }
-    }, [adminData, navigate]);
 
     return (
         <>

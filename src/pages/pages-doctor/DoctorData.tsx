@@ -80,7 +80,8 @@ function DoctorData() {
                                                     </td>
                                             </tr>
                                             <tr>
-                                                <td className="border px-4 py-2 font-semibold">Address</td>                                                <td className="border px-4 py-2">
+                                                <td className="border px-4 py-2 font-semibold">Address</td>                                                
+                                                <td className="border px-4 py-2">
                                                 <input className="bg-gray-200" type="text"
                                                         name="Name"
                                                         id="name"

@@ -7,9 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addUser } from '../../rtk/slices/userSlice';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../../../firebase/firebaseConfig';
+import toast, { Toaster } from 'react-hot-toast';
 
 function LoginPage() {
-  const [toast, setToast] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
@@ -40,20 +40,27 @@ function LoginPage() {
     console.log("input datas", formData);
     axios.post(`http://localhost:3000/api/user/login`, { formData }, { withCredentials: true })
       .then(response => {
-        if (response.status) {
+        if (response.data.status) {
           console.log("response from server ---->>>", response);
           dispatch(addUser(response.data.user));
           navigate("/user-profile");
         }
-        if (!response.status) {
+        if (!response.data.status) {
+          console.log("credentials not correct !");
+          
           console.log("res data -------->>>", response.data?.message)
-          setToast(response.data.message);
+        toast.error(response.data.message);
         }
       })
       .catch((er) => {
+        toast.error(`${er.data.message}`);
+        // toast.success("Password updated successfully.");
+
+
         if (er.response) {
+          // toast.error()
           // if(er.response.data.message){
-          setToast(er.response)
+          // setToast(er.response)
         }
 
       })
@@ -94,11 +101,13 @@ function LoginPage() {
     <>
 
       <Navbar />
+      <Toaster position="top-right" reverseOrder={true}></Toaster>
 
-      {toast && <div role="alert" className="bg-red-500 mt-2 alert alert-error">
+
+      {/* {toast && <div role="alert" className="bg-red-500 mt-2 alert alert-error">
         <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         <span>Error! {toast}</span>
-      </div>}
+      </div>} */}
 
       <div className="h-fit bg-blue-50 flex flex-col justify-center pt-32 pb-52 sm:px-4 lg:px-2">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">

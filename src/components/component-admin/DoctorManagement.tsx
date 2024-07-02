@@ -57,11 +57,6 @@ function DoctorManagement() {
             doctorsdata[doctorIndex].isActive = true;
           }
           setDoctors(doctorsdata);
-
-
-
-
-
           console.log(response,"response from server------->>>");
           
           // setRefresh(!refresh);
@@ -92,7 +87,7 @@ function DoctorManagement() {
     <div className="flex flex-row w-[80vw] h-[88vh] bg-teal-50">
       <Toaster />
       <div className="ml-14 mt-5">
-        <h1 className="pl-10 text-3xl">Doctor List</h1>
+        <h1 className="pl-10 text-3xl underline">Doctor List</h1>
         <div className="overflow-x-auto mt-14 min-h-[55vh]">
           <table className="table table-zebra table-lg">
             <thead>

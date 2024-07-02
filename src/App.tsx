@@ -37,7 +37,7 @@ function App() {
 
 
       <Route element={<UserProtectedRoute />}>
-      <Route path='/user-profile' element={<Userprofile />}></Route>     
+      <Route path='/user-profile/*' element={<Userprofile />}></Route>     
       </Route>
       
       <Route element={<DoctorProtectedRoute />}>

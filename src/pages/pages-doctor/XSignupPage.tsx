@@ -546,3 +546,115 @@ const SignupPage: React.FC = () => {
 };
 
 export default SignupPage;
+
+
+
+
+const calculateMaxDate = () => {
+  const today = new Date();
+  today.setFullYear(today.getFullYear() - 23);
+  const year = today.getFullYear();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const day = today.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+  const maxDate = calculateMaxDate();
+
+
+    // fullName: '',
+    // registerNo: '',
+    // department: '',
+    // address: '',
+    // pincode: '',
+    // phoneNo: '',
+    // gender: '',
+    // dob: '',
+
+
+
+
+    // registerNo: Yup.string().required('Register No is required'),
+    // department: Yup.string().required('Department is required'),
+    // address: Yup.string().required('Address is required'),
+    // pincode: Yup.string().required('Pincode is required'),
+    // phoneNo: Yup.string().min(10, 'Enter valid Phone number').required('Phone No is required'),
+    // gender: Yup.string().required('Gender is required'),
+    // dob: Yup.date().max(new Date(maxDate), 'You must be at least 23 years old').required('Date of Birth is required').nullable(),
+   
+
+
+
+
+
+
+
+                      {/* <div>
+                        <Field
+                          type="text"
+                          name="registerNo"
+                          placeholder="Enter Your Register No"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="registerNo" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="department"
+                          placeholder="Enter Your Department"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="department" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          as="textarea"
+                          name="address"
+                          placeholder="Enter Your Address"
+                          className="input input-bordered input-primary w-full h-20 text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="address" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="pincode"
+                          placeholder="Enter Your Pincode"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="pincode" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          type="text"
+                          name="phoneNo"
+                          placeholder="Enter Your Phone No"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        />
+                        <ErrorMessage name="phoneNo" component="div" className="text-red-600" />
+                      </div>
+                      <div>
+                        <Field
+                          as="select"
+                          name="gender"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                        >
+                          <option value="">Select your Gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </Field>
+                        <ErrorMessage name="gender" component="div" className="text-red-600" />
+                      </div> 
+                      <div>
+                        <Field
+                          type="date"
+                          name="dob"
+                          placeholder="Enter Your Date of Birth"
+                          className="input input-bordered input-primary w-full text-black placeholder:text-black/70"
+                          max={maxDate}
+                        />
+                        <ErrorMessage name="dob" component="div" className="text-red-600" />
+                      </div>
+                      */}  
